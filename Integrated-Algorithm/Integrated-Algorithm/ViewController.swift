@@ -121,9 +121,10 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPlayerDe
     }
     
     func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
-        self.currentAudioFile = arrayOfAudioFiles[indexPath.row]
-        if let filePath = currentAudioFile?.filePath {
-            
+        let f = arrayOfAudioFiles[indexPath.row]
+        let filePath = f.filePath
+        print(f.title)
+        print(f.filePath)
             do {
                 audioPlayer = try AVAudioPlayer(contentsOfURL: filePath)
                 audioPlayer?.delegate = self
@@ -131,9 +132,9 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPlayerDe
             } catch {
                 print(error)
             }
-        }
         
-        print(self.currentAudioFile?.filePath)
+        
+        print(f.filePath)
     }
     
 }
