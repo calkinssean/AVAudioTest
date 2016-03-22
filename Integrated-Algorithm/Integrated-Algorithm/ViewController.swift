@@ -27,6 +27,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPlayerDe
     
     @IBAction func recordTapped(sender: UIButton) {
         startNewAudioFile()
+        self.tracksTableView.reloadData()
     }
     
     @IBAction func playTapped(sender: UIButton) {
@@ -53,7 +54,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPlayerDe
         if let recorder = audioRecorder {
             recorder.stop()
         }
-        self.tracksTableView.reloadData()
         
     }
     
@@ -120,7 +120,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPlayerDe
         
     }
     
-    func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let f = arrayOfAudioFiles[indexPath.row]
         let filePath = f.filePath
         print(f.title)
@@ -132,7 +132,6 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPlayerDe
             } catch {
                 print(error)
             }
-        
         
         print(f.filePath)
     }
