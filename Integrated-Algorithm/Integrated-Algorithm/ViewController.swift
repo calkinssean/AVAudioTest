@@ -11,30 +11,38 @@ import AVFoundation
 
 class ViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPlayerDelegate, UITableViewDataSource, UITableViewDelegate {
     
+    //MARK: - Audio Recorder and player instances
     var audioRecorder: AVAudioRecorder?
     var audioPlayer: AVAudioPlayer?
     
+    //Properties
     var arrayOfAudioFiles = [AudioFile]()
-    
-    @IBOutlet weak var tracksTableView: UITableView!
-    
     var currentAudioFile:AudioFile?
     
+    //Outlets
+    @IBOutlet weak var tracksTableView: UITableView!
+    
+    
+    //View life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
     }
     
+    //MARK: - Record button
     @IBAction func recordTapped(sender: UIButton) {
         startNewAudioFile()
         self.tracksTableView.reloadData()
     }
     
+    //MARK: - Play button
     @IBAction func playTapped(sender: UIButton) {
         
+        //Grabs the file path of current audiofile (NSURL)
         if let filePath = self.currentAudioFile?.filePath {
             
             do {
+                //Plays that audio file from filepath using AVAudioPlayer
                 audioPlayer = try AVAudioPlayer(contentsOfURL: filePath)
                 audioPlayer?.delegate = self
                 audioPlayer?.play()
@@ -45,40 +53,56 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPlayerDe
         print(self.currentAudioFile?.filePath)
     }
     
+    //MARK: - Pause button
     @IBAction func pauseTapped(sender: UIButton) {
         
+        if let recorder = audioRecorder {
+            
+            recorder.pause()
+            
+        }
     }
     
+    //MARK: - Stop button
     @IBAction func stopTapped(sender: UIButton) {
         
         if let recorder = audioRecorder {
+        
             recorder.stop()
+        
         }
         
     }
     
+    //MARK: - Start new audio file
     func startNewAudioFile() {
         
         let today = NSDate()
         let timestamp = today.timeIntervalSince1970
         let fileURL = self.documentDirectory()?.URLByAppendingPathComponent("\(timestamp)")
         
+        //Creates a new audiofile with a timeStamp in the filepath url and adds it to array
         self.currentAudioFile = AudioFile(title: "\(timestamp)", filePath: fileURL!)
         
         self.arrayOfAudioFiles.append(self.currentAudioFile!)
         
         if let url = self.currentAudioFile?.filePath {
+            
+            //Starts new audio session with new audiofile url
             startSessionWithFilePath(url)
+        
         }
         
         print(self.arrayOfAudioFiles.count)
     }
     
+    //MARK: - Start audio session
     func startSessionWithFilePath(filePath: NSURL) {
         
         let audioSession = AVAudioSession.sharedInstance()
         
         do {
+            //Trys to create a new audio session, if it doesn't work print error
             try audioSession.setCategory(AVAudioSessionCategoryPlayAndRecord, withOptions: AVAudioSessionCategoryOptions.DefaultToSpeaker)
             
             let recorderSetting: [String: AnyObject] = [
@@ -88,6 +112,7 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPlayerDe
                 AVEncoderAudioQualityKey: AVAudioQuality.High.rawValue
             ]
             
+            //Records new audio into current audiofile url
             audioRecorder = try AVAudioRecorder(URL: filePath, settings: recorderSetting)
             audioRecorder?.delegate = self
             audioRecorder?.meteringEnabled = true
@@ -100,10 +125,13 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPlayerDe
         
     }
     
+    //MARK: - Grabbing document directory
     func documentDirectory() -> NSURL? {
         return NSFileManager.defaultManager().URLsForDirectory(NSSearchPathDirectory.DocumentDirectory, inDomains: NSSearchPathDomainMask.UserDomainMask).first
     }
     
+    
+    //MARK: - Table view data source
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let f = arrayOfAudioFiles[indexPath.row]
         
@@ -120,18 +148,21 @@ class ViewController: UIViewController, AVAudioRecorderDelegate, AVAudioPlayerDe
         
     }
     
+    //MARK: - Did select table view cell
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        //grab audio file from array and creates a new instance of it's filepath
         let f = arrayOfAudioFiles[indexPath.row]
         let filePath = f.filePath
         print(f.title)
         print(f.filePath)
-            do {
-                audioPlayer = try AVAudioPlayer(contentsOfURL: filePath)
-                audioPlayer?.delegate = self
-                audioPlayer?.play()
-            } catch {
-                print(error)
-            }
+        do {
+            //tries to play audiofile with AVAudioPlayer
+            audioPlayer = try AVAudioPlayer(contentsOfURL: filePath)
+            audioPlayer?.delegate = self
+            audioPlayer?.play()
+        } catch {
+            print(error)
+        }
         
         print(f.filePath)
     }
